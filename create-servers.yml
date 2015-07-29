@@ -14,9 +14,9 @@
   connection: local
   vars:
     #server_count: 1
-    working_dir: /root/
+    working_dir: /root
   vars_files:
-    - {{ password_file }}
+    - "{{ password_file }}"
   tasks:
     - name: Create and Verify a Server Group at CenturyLink Cloud
       clc_group:
@@ -67,7 +67,7 @@
     - name: write local files
       #local_action: copy content={{ item.details.ipAddresses[0].internal }} dest=/root/cluster-info-ip-addresses
       #local_action: command echo {{ item.details.ipAddresses[0].internal }} >> /root/hosts
-      shell: "echo {{ item.details.ipAddresses[0].internal }} >> {{ working_dir }}{{ server_group }}-hosts"
+      shell: "echo {{ item.details.ipAddresses[0].internal }} >> {{ working_dir }}/{{ server_group }}-hosts"
       #local_action: copy content={{ created_servers }} dest=/root/cluster-info-ip-addresses
       with_items: created_servers.servers
    

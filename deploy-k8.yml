@@ -10,13 +10,15 @@
     working_dir: /root
   tasks:
   
+        
+      - name: display path
+        debug:
+          msg: "{{ working_dir }}/{{ server_group }}/kubernetes/cluster/"
+            
       - name: deploy k8
-        shell: KUBERNETES_PROVIDER=ubuntu ./kube-up.sh
+        shell: (cd {{ working_dir }}/{{ server_group }}/kubernetes/cluster/ && KUBERNETES_PROVIDER=ubuntu ./kube-up.sh)
         async: 600
         poll: 5
-        args:
-            chdir: "{{ working_dir }}/{{ server_group }}/kubernetes/cluster"
-            #creates: /path/to/database
         register: deploy_output
         
       - name: debug

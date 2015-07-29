@@ -5,7 +5,7 @@
   gather_facts: False
   connection: local
   vars:
-    working_dir: /root/ 
+    working_dir: /root
     hosts_file: "{{ working_dir }}/{{ server_group }}-hosts"
     config_file: "{{ working_dir }}/{{ server_group }}/kubernetes/cluster/ubuntu/config-default.sh"
         

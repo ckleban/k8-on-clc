@@ -14,7 +14,7 @@
   connection: local
   vars:
     #server_count: 1
-    working_dir: /root
+    #working_dir: /root
   vars_files:
     - "{{ password_file }}"
   tasks:

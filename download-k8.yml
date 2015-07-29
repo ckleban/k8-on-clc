@@ -7,7 +7,7 @@
   vars:
     #hosts_file: /root/hosts
     #config_file: /root/config-default.sh
-    working_dir: /root
+   #working_dir: /root
   tasks:
 
       - name: Creates directory

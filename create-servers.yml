@@ -4,7 +4,7 @@
 ### usage:
 # must have passwords.yml file with 'server_password', 'server_count' and 'public_key' variables defined
 #
-# ansible-playbook name-of-this-file.yml --extra-vars "server_group=ca2-k8-dev-5 location=ca2 server_count=2" 
+# ansible-playbook name-of-this-file.yml --extra-vars "server_group=ca2-k8-dev-5 location=ca2 server_count=2 password_file=/root/passwords.yml" 
 #
 
 ---
@@ -16,7 +16,7 @@
     #server_count: 1
     working_dir: /root/
   vars_files:
-    - /root/passwords.yml
+    - {{ password_file }}
   tasks:
     - name: Create and Verify a Server Group at CenturyLink Cloud
       clc_group:

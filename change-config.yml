@@ -1,0 +1,78 @@
+
+---
+- name: Change k8 Configuration file
+  hosts: localhost
+  gather_facts: False
+  connection: local
+  vars:
+    working_dir: /root/ 
+    hosts_file: "{{ working_dir }}/{{ server_group }}-hosts"
+    config_file: "{{ working_dir }}/{{ server_group }}/kubernetes/cluster/ubuntu/config-default.sh"
+        
+  tasks:
+  
+      - name: retrieve the list of servers 
+        command: cat {{ hosts_file }}
+        register: servers_to_install_k8
+
+
+      - name: remove lines in config with 'role' 1
+        lineinfile: 
+            dest: "{{ config_file }}"
+            line: role=${role:-"ai i i"}
+            state: absent
+
+      - name: remove lines in config with 'role' 2
+        lineinfile: 
+            dest: "{{ config_file }}"
+            line: export roles=($role)
+            state: absent
+           
+      - name: comment out old nodes line           
+        replace: 
+           dest: "{{ config_file }}"
+           regexp: 'export nodes'
+           replace: '#export nodes'
+           backup: yes
+
+      - name: add line1 to config
+        lineinfile: 
+            dest: "{{ config_file }}"
+            insertafter: '#export nodes'
+            line: export nodes=${nodes:-"{% set comma = joiner(" ") %}{% for item in servers_to_install_k8.stdout_lines -%}{{ comma() }}root@{{ item }}{%- endfor %}"}
+
+
+
+      - name: add line2 to config           
+        lineinfile:
+            dest: "{{ config_file }}"
+            insertafter: 'export nodes'
+            line: roles=({% set comma = joiner(" ") %}{% for item in servers_to_install_k8.stdout_lines -%}{{ comma() }}"i"{%- endfor %})
+ 
+      - name: cleanup line2 by adding an a in the first role to make that server the master           
+        replace: 
+           dest: "{{ config_file }}"
+           regexp: 'roles=\(\"i\" '
+           replace: 'roles=("ai" '
+           backup: yes
+
+
+      - name: cleanup line2 by adding an a in the first role to make that server the master           
+        replace: 
+           dest: "{{ config_file }}"
+           regexp: 'export ADMISSION_CONTROL=NamespaceLifecycle,NamespaceExists,LimitRanger,ServiceAccount,ResourceQuota,SecurityContextDeny'
+           replace: 'export ADMISSION_CONTROL=NamespaceLifecycle,NamespaceAutoProvision,LimitRanger,ResourceQuota'
+           backup: yes
+
+      - name: retrieve the number of servers 
+        shell: cat {{ hosts_file }} | wc -l
+        register: number_of_servers
+
+      - name: edit number of minions   
+        replace: 
+           dest: "{{ config_file }}"
+           regexp: 'NUM_MINIONS:-3'
+           replace: 'NUM_MINIONS:-{{ number_of_servers.stdout }}'
+           backup: yes
+
+

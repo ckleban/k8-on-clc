@@ -1,0 +1,28 @@
+
+---
+- name: download k8 - latest version
+  hosts: localhost
+  gather_facts: False
+  connection: local
+  vars:
+    #hosts_file: /root/hosts
+    #config_file: /root/config-default.sh
+    working_dir: /root/ 
+  tasks:
+
+      - name: Creates directory
+        file: 
+          path: "{{ working_dir }}/{{ server_group }}"
+          state: directory  
+  
+      - name: Download k8
+        command: git clone https://github.com/GoogleCloudPlatform/kubernetes.git
+        args:
+            chdir: "{{ working_dir }}/{{ server_group }}"
+            #creates: /path/to/database
+
+      - name: download binaries
+        command: ./build.sh
+        args:
+            chdir: "{{ working_dir }}/{{ server_group }}/kubernetes/cluster/ubuntu"
+

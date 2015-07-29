@@ -1,0 +1,121 @@
+### notes: if deploying to a new DC with no network, it fails. Perhaps add checking for this and deploying new network?
+### create a way to delete cluster?
+
+### usage:
+# must have passwords.yml file with 'server_password', 'server_count' and 'public_key' variables defined
+#
+# ansible-playbook name-of-this-file.yml --extra-vars "server_group=ca2-k8-dev-5 location=ca2 server_count=2" 
+#
+
+---
+- name: Build Servers
+  hosts: localhost
+  gather_facts: False
+  connection: local
+  vars:
+    #server_count: 1
+    working_dir: /root/
+  vars_files:
+    - /root/passwords.yml
+  tasks:
+    - name: Create and Verify a Server Group at CenturyLink Cloud
+      clc_group:
+        name: "{{ server_group }}"
+        location: "{{ location }}"
+        state: present
+
+    - name: Create servers(s)
+      clc_server:
+        name: k8
+        count: "{{ server_count }}"
+        #exact_count: "{{ server_count }}"
+        group: "{{ server_group }}"
+        count_group: "{{ server_group }}"
+        location: "{{ location }}"
+        password: "{{ server_password }}"
+        template: ubuntu-14-64
+        cpu: 1
+        memory: 1
+        type: standard
+        storage_type: standard
+      async: 500
+      poll: 5
+      register: created_servers
+
+    - name: Wait for SSH to Come up on Started Servers
+      wait_for: host={{ item.details.ipAddresses[0].internal }} port=22 delay=5 timeout=320 state=started
+      with_flattened:
+        - created_servers.servers
+
+    - name: Update known_hosts With Started Server
+      shell: "ssh-keygen -R {{ item.details.ipAddresses[0].internal }} && ssh-keyscan -t rsa -H {{ item.details.ipAddresses[0].internal }} >> ~/.ssh/known_hosts"
+      with_items: created_servers.servers
+
+    - name: Deploy SSH Key to New Servers (Ubuntu)
+      shell: "echo '{{ public_key }}'|sshpass -p '{{ server_password }}' ssh root@{{ item.details.ipAddresses[0].internal }} 'cat >> ~/.ssh/authorized_keys'"
+      with_flattened:
+        - created_servers.servers
+
+    - name: Add New Servers to an in-memory Group
+      add_host:
+        name={{ item.name }}
+        ansible_ssh_host={{ item.details.ipAddresses[0].internal }}
+        ansible_ssh_user=root
+        groupname=SERVERS_GRP
+      with_items: created_servers.servers
+
+    - name: write local files
+      #local_action: copy content={{ item.details.ipAddresses[0].internal }} dest=/root/cluster-info-ip-addresses
+      #local_action: command echo {{ item.details.ipAddresses[0].internal }} >> /root/hosts
+      shell: "echo {{ item.details.ipAddresses[0].internal }} >> {{ working_dir }}{{ server_group }}-hosts"
+      #local_action: copy content={{ created_servers }} dest=/root/cluster-info-ip-addresses
+      with_items: created_servers.servers
+   
+      
+
+- name: Install Ansible
+  hosts: SERVERS_GRP
+  gather_facts: True
+  remote_user: root
+  tasks:
+    - name: Install software-properties-common
+      apt: name=software-properties-common
+
+    - name: Add Repos
+      apt_repository: repo='ppa:ansible/ansible'
+      apt_repository: repo='ppa:docker-maint/testing'
+
+    - name: Update Cache
+      apt: update_cache=yes
+      
+      # not needed?
+    - name: Install Ansible / Pip
+      apt: name='{{ item }}'
+      with_items:
+        - python-pip
+        - ansible
+        - linux-image-generic-lts-trusty
+        - bridge-utils
+        - docker.io
+      
+
+
+- name: Restart server
+  hosts: SERVERS_GRP
+  tasks:
+    - name: send the reboot
+      command: "sleep 3; shutdown -r now"
+      async: 20
+      poll: 0
+      ignore_errors: true
+
+
+
+- name: make sure docker is running
+  hosts: SERVERS_GRP
+  tasks:
+    - name: start docker
+      command: "service docker start"
+      ignore_errors: true
+
+

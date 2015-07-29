@@ -1,0 +1,25 @@
+
+---
+- name: deploy k8
+  hosts: localhost
+  gather_facts: False
+  connection: local
+  vars:
+    #hosts_file: /root/hosts
+    #config_file: /root/config-default.sh
+    working_dir: /root
+  tasks:
+  
+      - name: deploy k8
+        shell: KUBERNETES_PROVIDER=ubuntu ./kube-up.sh
+        async: 600
+        poll: 5
+        args:
+            chdir: "{{ working_dir }}/{{ server_group }}/kubernetes/cluster"
+            #creates: /path/to/database
+        register: deploy_output
+        
+      - name: debug
+        debug:
+          msg: deploy_output
+          

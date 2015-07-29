@@ -73,7 +73,7 @@
    
       
 
-- name: Install Ansible
+- name: Install software packages
   hosts: SERVERS_GRP
   gather_facts: True
   remote_user: root
@@ -89,7 +89,7 @@
       apt: update_cache=yes
       
       # not needed?
-    - name: Install Ansible / Pip
+    - name: install the packages
       apt: name='{{ item }}'
       with_items:
         - python-pip

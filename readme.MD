@@ -43,7 +43,7 @@ You can now run anything kubernetes commands you want from your host or any host
 List all nodes in your cluster
 >kubectl get nodes
 
->List all nodes, pods, services, and replication controllers in your cluster
-kubectl get nodes,pods,services,rc
+List all nodes, pods, services, and replication controllers in your cluster
+>kubectl get nodes,pods,services,rc
 
 

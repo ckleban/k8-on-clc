@@ -1,0 +1,40 @@
+
+---
+- name: Change k8 Configuration file
+  hosts: localhost
+  gather_facts: False
+  connection: local
+  vars:
+    #working_dir: /root
+    hosts_file: "{{ working_dir }}/{{ server_group }}-hosts"
+    config_file: "{{ working_dir }}/{{ server_group }}/kubernetes/cluster/ubuntu/config-default.sh"
+        
+  tasks:
+    - name: retrieve the list of servers 
+      command: cat {{ hosts_file }}
+      register: servers_to_install_k8
+      
+    - name: Add New Servers to an in-memory Group
+      add_host:
+        name={{ item }}
+        ansible_ssh_host={{ item }}
+        ansible_ssh_user=root
+        groupname=SERVERS_GRP
+      with_items: servers_to_install_k8.stdout_lines
+
+
+- name: Change k8 Configuration file
+  hosts: SERVERS_GRP
+  gather_facts: False
+  vars:
+    #working_dir: /root
+    hosts_file: "{{ working_dir }}/{{ server_group }}-hosts"
+    config_file: "{{ working_dir }}/{{ server_group }}/kubernetes/cluster/ubuntu/config-default.sh"
+        
+  tasks:
+
+      - name: reconf docker
+        command: /root/kube/reconfDocker.sh
+      
+
+

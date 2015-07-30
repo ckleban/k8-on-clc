@@ -23,8 +23,8 @@ Download these files
 Edit the passwords.yml file. This file will specify what root password and pub ssh key to use on the new servers in CLC
 > vi ./passwords.yml
 
-Run the install script. Need to pass it these variables in this specific order:
-<ClusterName> <CLC Location> <Number of Servers> <path to passwords.yml file> <Working directory>
+Run the install script. Need to pass it these variables in this specific order: <br>
+(ClusterName) (CLC Location) (Number of Servers) (path to passwords.yml file) (Working directory)
 
 > bash make-cluster.sh ca2-k8-test2 ca2 3 /root/passwords.yml /root
 

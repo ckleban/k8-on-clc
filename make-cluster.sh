@@ -28,3 +28,5 @@ echo "Fix docker on minions. Need to re-run /root/kube/reconfDocker.sh for some 
 
 echo "All done. Try out your k8 cluster today! -ck"
 
+
+

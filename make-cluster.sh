@@ -7,9 +7,11 @@ location=$2
 server_count=$3
 password_file=$4
 working_dir=$5
+cpu_size=$6
+mem_size=$7
 
 echo "Starting servers and downloading k8"
-{ ansible-playbook create-servers.yml --extra-vars "server_group=$1 location=$2 server_count=$3 password_file=$4 working_dir=$5"; } &
+{ ansible-playbook create-servers.yml --extra-vars "server_group=$1 location=$2 server_count=$3 password_file=$4 working_dir=$5 cpu_size=$6 mem_size=$7"; } &
 { ansible-playbook download-k8.yml --extra-vars "server_group=$1 location=$2 server_count=$3 password_file=$4 working_dir=$5"; } &
 wait
 

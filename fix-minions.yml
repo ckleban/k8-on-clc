@@ -1,6 +1,6 @@
 
 ---
-- name: Change k8 Configuration file
+- name: Load servers from hosts file
   hosts: localhost
   gather_facts: False
   connection: local
@@ -23,7 +23,7 @@
       with_items: servers_to_install_k8.stdout_lines
 
 
-- name: Change k8 Configuration file
+- name: run the reconf docker script on each host and add NAT rule to fix outbound internet access for containers
   hosts: SERVERS_GRP
   gather_facts: False
   vars:
@@ -35,6 +35,14 @@
 
       - name: reconf docker
         command: /root/kube/reconfDocker.sh
-      
-
+      - name: more iptables1     
+        command: iptables -t nat -N KUBE-OUTBOUND-NAT
+      - name: more iptables2
+        command: iptables -t nat -A KUBE-OUTBOUND-NAT -d 172.16.0.0/16 -o eth0 -j RETURN
+      - name: more iptables 3       
+        command: iptables -t nat -A KUBE-OUTBOUND-NAT -j MASQUERADE
+      - name: more iptables4       
+        command: iptables -t nat -A POSTROUTING -j KUBE-OUTBOUND-NAT
+      - name: more iptables5       
+        command: iptables-save 
 

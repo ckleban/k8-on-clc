@@ -6,6 +6,8 @@
 #
 # ansible-playbook name-of-this-file.yml --extra-vars "server_group=ca2-k8-dev-5 location=ca2 server_count=2 password_file=/root/passwords.yml" 
 #
+### note: now need to also pass cpu_size and mem_size
+
 
 ---
 - name: Build Servers
@@ -34,8 +36,8 @@
         location: "{{ location }}"
         password: "{{ server_password }}"
         template: ubuntu-14-64
-        cpu: 1
-        memory: 1
+        cpu: "{{ cpu_size }}"
+        memory: "{{ mem_size }}"
         type: standard
         storage_type: standard
       async: 500

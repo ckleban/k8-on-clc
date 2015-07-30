@@ -25,8 +25,14 @@ echo "Deploying Kubernetes!!!! -> cd $5/$1/kubernetes/cluster && KUBERNETES_PROV
 echo "Updating PATH"
 PATH=$PATH:$5/$1/kubernetes/cluster/ubuntu/binaries/
 
+echo "Trying addons!"
+(cd $5/$1/kubernetes/cluster/ubuntu && KUBERNETES_PROVIDER=ubuntu ./deployAddons.sh)
+
+
+
 echo "Fix docker on minions. Need to re-run /root/kube/reconfDocker.sh for some reason after k8 deploy"
 { ansible-playbook fix-minions.yml --extra-vars "server_group=$1 location=$2 server_count=$3 password_file=$4 working_dir=$5"; } &
+wait
 
 echo "All done. Try out your k8 cluster today! -ck"
 

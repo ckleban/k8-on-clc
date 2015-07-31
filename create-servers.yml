@@ -28,7 +28,7 @@
 
     - name: Create new servers(s) in CLC. This could take 2-20 minutes, depending on amount of new servers. 
       clc_server:
-        name: k8
+        name: k8-srv
         count: "{{ server_count }}"
         #exact_count: "{{ server_count }}"
         group: "{{ server_group }}"
@@ -40,6 +40,7 @@
         memory: "{{ mem_size }}"
         type: standard
         storage_type: standard
+        description: kubernetes-server
       async: 500
       poll: 5
       register: created_servers

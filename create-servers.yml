@@ -26,7 +26,7 @@
         location: "{{ location }}"
         state: present
 
-    - name: Create servers(s)
+    - name: Create new servers(s) in CLC. This could take 2-20 minutes, depending on amount of new servers. 
       clc_server:
         name: k8
         count: "{{ server_count }}"
@@ -66,11 +66,8 @@
         groupname=SERVERS_GRP
       with_items: created_servers.servers
 
-    - name: write local files
-      #local_action: copy content={{ item.details.ipAddresses[0].internal }} dest=/root/cluster-info-ip-addresses
-      #local_action: command echo {{ item.details.ipAddresses[0].internal }} >> /root/hosts
+    - name: create hosts file with new server ip addresses
       shell: "echo {{ item.details.ipAddresses[0].internal }} >> {{ working_dir }}/{{ server_group }}-hosts"
-      #local_action: copy content={{ created_servers }} dest=/root/cluster-info-ip-addresses
       with_items: created_servers.servers
    
       
@@ -80,27 +77,20 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - name: Install software-properties-common
-      apt: name=software-properties-common
-
     - name: Add Repos
-      apt_repository: repo='ppa:ansible/ansible'
       apt_repository: repo='ppa:docker-maint/testing'
 
     - name: Update Cache
       apt: update_cache=yes
       
-      # not needed?
     - name: install the packages
       apt: name='{{ item }}'
       with_items:
-        - python-pip
-        - ansible
+        - software-properties-common
         - linux-image-generic-lts-trusty
         - bridge-utils
         - docker.io
       
-
 
 - name: Restart server
   hosts: SERVERS_GRP

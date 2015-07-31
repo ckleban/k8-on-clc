@@ -2,13 +2,13 @@
 #
 # deploy k8 cluster on clc
 
-server_group=$1
-location=$2
-server_count=$3
-password_file=$4
-working_dir=$5
-cpu_size=$6
-mem_size=$7
+server_group=${1:-kubernetes1} 
+location=${2:-ca2} 
+server_count=${3:-3} 
+password_file=${4:-./passwords.yml} 
+working_dir=${5:-/root} 
+cpu_size=${6:-2} 
+mem_size=${7:-2} 
 
 echo "Starting servers and downloading k8"
 { ansible-playbook create-servers.yml --extra-vars "server_group=$1 location=$2 server_count=$3 password_file=$4 working_dir=$5 cpu_size=$6 mem_size=$7"; } &
@@ -23,7 +23,7 @@ echo "Deploying Kubernetes!!!! -> cd $5/$1/kubernetes/cluster && KUBERNETES_PROV
 (cd $5/$1/kubernetes/cluster && KUBERNETES_PROVIDER=ubuntu ./kube-up.sh)
 
 echo "Updating PATH"
-PATH=$PATH:$5/$1/kubernetes/cluster/ubuntu/binaries/
+export PATH=$PATH:$5/$1/kubernetes/cluster/ubuntu/binaries/
 
 echo "Trying addons!"
 (cd $5/$1/kubernetes/cluster/ubuntu && KUBERNETES_PROVIDER=ubuntu ./deployAddons.sh)

@@ -4,16 +4,18 @@ These scripts are still in early early alpha. This is mainly just a proof of con
 ### Prereq
 Ensure these things exist before you get started. 
 
-* Account on centurylink cloud (CLC)
-* Host to run these scripts on (like linux, macos, etc). I tested on ubuntu. 
-* Host has these items installed:
-** ansible
-** centurylink cloud ansible plugin
-** python, pthyon pip
-** git
-* Configure and test ansible and clc plugin (clc auth)
+* centurylink cloud (CLC) account
+* A linux host to run scripts from (I tested on ubuntu)
+* These installed packages on your script host:
+> ansible (latest version preferred. Should work on some older versions.)
+> centurylink cloud ansible plugin
+> python, pthyon pip
+> git
+
+* Configure and test ansible and clc plugin (make sure your auth is setup right)
 * ssh key on the host
-* host has internet access
+
+For insturctions on how to do all this, see the prepare-host.MD
 
 ### Howto use
 
@@ -23,11 +25,15 @@ Download these files
 Edit the passwords.yml file. This file will specify what root password and pub ssh key to use on the new servers in CLC
 > vi ./passwords.yml
 
-Run the install script. Need to pass it these variables in this specific order: <br>
-(ClusterName) (CLC Location) (Number of Servers) (path to passwords.yml file) (Working directory) (cpu size per VM) (mem size per VM)
+Run the install script with no parameters passed (if you are okay with default parameters)
+The defaults are: location=ca2, servers=3, VMcpus=2, VMmem=2....
+> bash make-cluster.sh
 
-> bash make-cluster.sh ca2-k8-test2 ca2 3 /path/to/your/passwords.yml /root 1 1
-
+OR Run the install script with parameters passed (if you want to customize your cluster)<br>
+<br>
+The parameters and their specific order: (ClusterName) (CLC Location) (Number of Servers) (path to passwords.yml file) (Working directory) (cpu size per VM) (mem size per VM)
+<br> example:
+> bash make-cluster.sh ca2-k8-test2 ca2 5 /path/to/your/passwords.yml /root 1 1
 
 You should now have a kubernetes cluster on CLC. Your host should now be configured to work with your new cluster. Simply run your favorite kubectl commands. 
 

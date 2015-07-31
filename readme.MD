@@ -31,12 +31,16 @@ Download this repo to your host.
 > git clone https://github.com/ckleban/k8-on-clc
 
 Create a SSH key on your host and install it on your host to access new remote VMs (note: this key has no passphrase. You can also create one with a passphrase, but you will need to type that in from time to time)
+
 > ssh-keygen -b 2048 -t rsa -f /root/.ssh/clc2_rsa -q -N ""
+
 > eval $(ssh-agent -s)
+
 > ssh-add /root/.ssh/clc2_rsa
 
 Set the credentials for the CLC ansible plugin:
 >export CLC_V2_API_USERNAME=yourCLCusername
+
 >export CLC_V2_API_PASSWD=yourCLCpassword
 
 Display the public file of the key you created (you will need to copy the contents of this in the below file)
@@ -69,7 +73,7 @@ At this time, if you want to expose kubernetes services to external users (like 
 ### Kubernetes Examples
 
 You can now run anything kubernetes commands you want from your host or any host with kubectl installed. 
-<br><br>
+
 
 List all nodes in your cluster
 >kubectl get nodes

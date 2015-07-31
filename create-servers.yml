@@ -77,7 +77,7 @@
 
 - name: Install software packages
   hosts: SERVERS_GRP
-  gather_facts: True
+  gather_facts: False
   remote_user: root
   tasks:
     - name: Install software-properties-common
@@ -104,20 +104,22 @@
 
 - name: Restart server
   hosts: SERVERS_GRP
+  gather_facts: False
   tasks:
     - name: send the reboot
-      command: "sleep 3; shutdown -r now"
-      async: 20
-      poll: 0
+      command: "shutdown -r now"
+      async: 120
+      poll: 5
       ignore_errors: true
 
 
 
 - name: make sure docker is running
   hosts: SERVERS_GRP
+  gather_facts: False
   tasks:
     - name: start docker
-      command: "service docker start"
+      command: "service docker restart"
       ignore_errors: true
 
 

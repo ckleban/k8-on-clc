@@ -26,7 +26,7 @@ Edit the passwords.yml file. This file will specify what root password and pub s
 Run the install script. Need to pass it these variables in this specific order: <br>
 (ClusterName) (CLC Location) (Number of Servers) (path to passwords.yml file) (Working directory) (cpu size per VM) (mem size per VM)
 
-> bash make-cluster.sh ca2-k8-test2 ca2 3 /root/passwords.yml /root 1 1
+> bash make-cluster.sh ca2-k8-test2 ca2 3 /path/to/your/passwords.yml /root 1 1
 
 
 You should now have a kubernetes cluster on CLC. Your host should now be configured to work with your new cluster. Simply run your favorite kubectl commands. 

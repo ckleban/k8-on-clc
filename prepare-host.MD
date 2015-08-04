@@ -1,13 +1,27 @@
-# Work in progress
+# More detailed instructions on how to prepare a host to run these scripts. 
 
-# steps to prepare your host to run scripts, etc. (install ansible, clc plugin, ssh keys, etc)
+This is a work in progress.... 
+
+# On a Unbuntu host (like a ubuntu VM on CLC)
+
+Install needed libraries
+* apt-add-repository ppa:ansible/ansible
+* apg-get update
+* apt-get -y install ansible
+* apt-get -y install python-pip
+* pip install clc-ansible-module
 
 
-apt-add-repository ppa:ansible/ansible
+Configure CLC module for ansible
+* mv /etc/ansible/hosts /etc/ansible/hosts-back
+* ln -s /usr/local/bin/clc_inv.py /etc/ansible/hosts
+* export CLC_V2_API_USERNAME=yourCLCusername
+* export CLC_V2_API_PASSWD=yourCLCpassword
 
-apg-get update
-apt-get -y install ansible
-apt-get -y install python-pip
+Test CLC Ansible Module
+* ansible all -i /usr/local/bin/clc_inv.py --list-hosts
 
-pip install clc-ansible-module
-
+Setup SSH Keys
+* ssh-keygen -b 2048 -t rsa -f /root/.ssh/clc2_rsa -q -N ""
+* eval $(ssh-agent -s)
+* ssh-add /root/.ssh/clc2_rsa

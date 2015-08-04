@@ -1,7 +1,8 @@
 #Scripts to install kubernetes on CenturyLink Cloud
-These scripts are still in early early alpha. This is mainly just a proof of concept at this point. 
 
-These scripts do the following items:
+These scripts will install a kubernetes cluster for your use on CenturyLink Cloud. These scripts are tested to work from an ubuntu machine. These scripts are meant to allow people to try and learn about kubernetes on centurylink cloud. There are not meant for production purposes. 
+
+These scripts will do the following items:
 
 * Create new VMs in CenturyLinkCloud
 * Configure the new servers with the needed software packages (docker, etc) and setup passphraseless SSH access via Keys between host and new servers
@@ -66,9 +67,11 @@ example:
 
 You should now have a kubernetes cluster on CLC. Your host should now be configured to work with your new cluster. Simply run your favorite kubectl commands. 
 
-### Kubernetes notes
+### Kubernetes on CLC: notes and limitations
 
-At this time, if you want to expose kubernetes services to external users (like the internet), the 'load balancer type' foes not automatically create an external public IP for you. You need to create the service with type nodeport and create an LB pointing to the VM internal ip address for one, many or all of the servers in the cluster and the port created in the service. 
+* At this time, if you want to expose kubernetes services to external users (like the internet), the 'load balancer type' foes not automatically create an external public IP for you. You need to create the service with type nodeport and create an LB pointing to the VM internal ip address for one, many or all of the servers in the cluster and the port created in the service.
+* Only the DNS kubernets add-on is installed. (No ui, logging, monitoring, etc at this time)
+
 
 ### Kubernetes Examples
 
@@ -84,5 +87,12 @@ List all nodes, pods, services, and replication controllers in your cluster
 ### Delete your cluster
 
 To delete your cluster, simply login to the CLC control portal and delete the group of new servers
+
+### What's next
+
+* Re-write automation to add CLC as a true 'cloud provider' inside kiubenetes. This will give us external IP support within the kubectl client and api. 
+* Add additional add ons
+* Support HTTPs and Certificate authentiction and api usage. 
+
 
 

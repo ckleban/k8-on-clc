@@ -1,8 +1,6 @@
 # More detailed instructions on how to prepare a host to run these scripts. 
 
-This is a work in progress.... 
-
-# On a Unbuntu host (like a ubuntu VM on CLC)
+> These steps were tested on a Unbuntu VM on CLC 
 
 Install needed libraries
 * apt-add-repository ppa:ansible/ansible

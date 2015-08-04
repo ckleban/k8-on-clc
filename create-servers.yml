@@ -98,9 +98,9 @@
   gather_facts: False
   tasks:
     - name: send the reboot
-      command: "shutdown -r now"
-      async: 120
-      poll: 5
+      command: "sleep 3; shutdown -r now"
+      async: 40
+      poll: 0
       ignore_errors: true
 
 

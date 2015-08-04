@@ -13,59 +13,77 @@ These scripts will do the following items:
 ### Prereq
 Ensure these things exist before you get started. 
 
-* centurylink cloud (CLC) account
+* centurylink cloud (CLC) account. 
+ * If you don't have an account, go get one here: https://www.ctl.io/free-trial/ 
+ * Currently they are giving out 2500 in cloud credit for 30 days to new accounts. 
 * a 'network created' in the CLC location of your choice
-* A linux host to run scripts from (I tested on ubuntu)
-* These installed packages on your script host:
- * ansible (latest version preferred. Should work on some older versions.)
- * centurylink cloud ansible plugin
- * python, pthyon pip
- * git
-* Configure and test ansible and clc plugin (make sure your auth is setup right)
-* ssh key on the host
+* A linux host to run scripts from (I tested on an ubuntu 14 vm on CLC)
 
-For insturctions on how to do all this, see the prepare-host.MD
+### Setup and configure CLC Ansible Plugin on your linux host. 
 
-### How to setup scripts
+You will need a host setup that has the CLC Ansible Plugin installed and configured. Here are some steps on how to do this on an ubuntu vm:
+
+Install needed libraries
+* apt-add-repository ppa:ansible/ansible
+* apg-get update
+* apt-get -y install ansible
+* apt-get -y install python-pip
+* pip install clc-ansible-module
+
+
+Configure CLC module for ansible
+* mv /etc/ansible/hosts /etc/ansible/hosts-back
+* ln -s /usr/local/bin/clc_inv.py /etc/ansible/hosts
+* export CLC_V2_API_USERNAME=yourCLCusername
+* export CLC_V2_API_PASSWD=yourCLCpassword
+
+Test CLC Ansible Module
+* ansible all -i /usr/local/bin/clc_inv.py --list-hosts
+
+Setup ssh keys for new VMs.
+* Note: this key has no passphrase. You can also create one with a passphrase, but you will need to type that in from time to time
+* 
+* ssh-keygen -b 2048 -t rsa -f /root/.ssh/clc2_rsa -q -N ""
+* eval $(ssh-agent -s)
+* ssh-add /root/.ssh/clc2_rsa
+
+### Install and configure these kubernetes on CLC scripts
 
 Download this repo to your host. 
-> git clone https://github.com/ckleban/k8-on-clc
-
-Create a SSH key on your host and install it on your host to access new remote VMs (note: this key has no passphrase. You can also create one with a passphrase, but you will need to type that in from time to time)
-
-> ssh-keygen -b 2048 -t rsa -f /root/.ssh/clc2_rsa -q -N ""
-
-> eval $(ssh-agent -s)
-
-> ssh-add /root/.ssh/clc2_rsa
-
-Set the credentials for the CLC ansible plugin:
->export CLC_V2_API_USERNAME=yourCLCusername
-
->export CLC_V2_API_PASSWD=yourCLCpassword
+* apt-get -y install git
+* git clone https://github.com/ckleban/k8-on-clc
 
 Display the public file of the key you created (you will need to copy the contents of this in the below file)
-> cat  /root/.ssh/clc2_rsa.pub
+* cat  /root/.ssh/clc2_rsa.pub
 
 Tell the scripts what root password you want on your new VMs and provide the ssh key you created above. 
-> vi ./passwords.yml
+* vi ./passwords.yml
 
 ### How to run Scripts
 
 You only need to run one script and it will take care of everything: make-cluster.sh
 
-To run this and use all the defaults: location=ca2, servers=3, VMcpus=2, VMmem=2....
+To create a kubernetes cluster with the default parameters, simply run: 
+* bash make-cluster.sh
 
-> bash make-cluster.sh
+Default parameters are: location=ca2, servers=3, VMcpus=2, VMmem=2....
 
-OR specify your own parameters:
-
-The parameters and their specific order: (ClusterName) (CLC Location) (Number of Servers) (path to passwords.yml file) (Working directory) (cpu size per VM) (mem size per VM)
+OR, to create a kubernetes cluster and specify your own parameters:
 
 example:
-> bash make-cluster.sh ca2-k8-test2 ca2 5 /path/to/your/passwords.yml /root 1 1
+* bash make-cluster.sh ca2-k8-test2 ca2 5 /path/to/your/passwords.yml /root 1 1
 
-You should now have a kubernetes cluster on CLC. Your host should now be configured to work with your new cluster. Simply run your favorite kubectl commands. 
+Note: The parameters and their specific order: (ClusterName) (CLC Location) (Number of Servers) (path to passwords.yml file) (Working directory) (cpu size per VM) (mem size per VM)
+
+### Results:
+
+You should now have a kubernetes cluster on CLC. Your host should now be configured to work with your new cluster. Simply run your favorite kubectl commands. If the script displayed and errors, your cluster may have not been installed correctly. Post an issue here if this happens and I'll try to help you out. 
+
+### Test:
+To test if the cluster was installed correctly and your VM can access the cluster, try using the kubectl client to list all nodes in your cluster:
+
+* kubectl get nodes
+
 
 ### Kubernetes on CLC: notes and limitations
 

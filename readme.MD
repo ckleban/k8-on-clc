@@ -16,8 +16,10 @@ Ensure these things exist before you get started.
 * centurylink cloud (CLC) account. 
  * If you don't have an account, go get one here: https://www.ctl.io/free-trial/ 
  * Currently they are giving out 2500 in cloud credit for 30 days to new accounts. 
-* a 'network created' in the CLC location of your choice
-* A linux host to run scripts from (I tested on an ubuntu 14 vm on CLC)
+* In the CLC location you wish to create your k8 cluster, you need at least one 'network' created. 
+ * This will happen automatically for you if you have created a VM via the web ui.
+ * To do this manually, login to the CLC ui, navigate to networks, pick your location, and click create
+* A linux host to run scripts from (I simply created a new ubuntu 14 vm on CLC)
 
 ### Setup and configure CLC Ansible Plugin on your linux host. 
 

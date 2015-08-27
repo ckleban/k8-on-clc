@@ -38,7 +38,8 @@
         template: ubuntu-14-64
         #######cpu: "{{ cpu_size }}"
         #######memory: "{{ mem_size }}"
-        #######type: standard
+        type: bareMetal
+        configurationId: 529e2592a3e640a7c2617b5e8bc8feaed94eac22
         #######storage_type: standard
         description: kubernetes-server
       async: 7200

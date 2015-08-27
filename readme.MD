@@ -27,7 +27,7 @@ You will need a host setup that has the CLC Ansible Plugin installed and configu
 
 Install needed libraries
 * apt-add-repository ppa:ansible/ansible
-* apg-get update
+* apt-get update
 * apt-get -y install ansible
 * apt-get -y install python-pip
 * pip install clc-ansible-module

@@ -1,0 +1,116 @@
+### notes: if deploying to a new DC with no network, it fails. Perhaps add checking for this and deploying new network?
+### create a way to delete cluster?
+
+### usage:
+# must have passwords.yml file with 'server_password', 'server_count' and 'public_key' variables defined
+#
+# ansible-playbook name-of-this-file.yml --extra-vars "server_group=ca2-k8-dev-5 location=ca2 server_count=2 password_file=/root/passwords.yml" 
+#
+### note: now need to also pass cpu_size and mem_size
+
+
+---
+- name: Build Servers
+  hosts: localhost
+  gather_facts: False
+  connection: local
+  vars:
+    #server_count: 1
+    #working_dir: /root
+  vars_files:
+    - "{{ password_file }}"
+  tasks:
+    - name: Create and Verify a Server Group at CenturyLink Cloud
+      clc_group:
+        name: "{{ server_group }}"
+        location: "{{ location }}"
+        state: present
+
+    - name: Create new servers(s) in CLC. This could take 2-20 minutes, depending on amount of new servers. 
+      clc_server:
+        name: k8-srv
+        count: "{{ server_count }}"
+        #exact_count: "{{ server_count }}"
+        group: "{{ server_group }}"
+        count_group: "{{ server_group }}"
+        location: "{{ location }}"
+        password: "{{ server_password }}"
+        template: ubuntu-14-64
+        #######cpu: "{{ cpu_size }}"
+        #######memory: "{{ mem_size }}"
+        #######type: standard
+        #######storage_type: standard
+        description: kubernetes-server
+      async: 7200
+      poll: 60
+      register: created_servers
+
+    - name: Wait for SSH to Come up on Started Servers
+      wait_for: host={{ item.details.ipAddresses[0].internal }} port=22 delay=5 timeout=320 state=started
+      with_flattened:
+        - created_servers.servers
+
+    - name: Update known_hosts With Started Server
+      shell: "ssh-keygen -R {{ item.details.ipAddresses[0].internal }} && ssh-keyscan -t rsa -H {{ item.details.ipAddresses[0].internal }} >> ~/.ssh/known_hosts"
+      with_items: created_servers.servers
+
+    - name: Deploy SSH Key to New Servers (Ubuntu)
+      shell: "echo '{{ public_key }}'|sshpass -p '{{ server_password }}' ssh root@{{ item.details.ipAddresses[0].internal }} 'cat >> ~/.ssh/authorized_keys'"
+      with_flattened:
+        - created_servers.servers
+
+    - name: Add New Servers to an in-memory Group
+      add_host:
+        name={{ item.name }}
+        ansible_ssh_host={{ item.details.ipAddresses[0].internal }}
+        ansible_ssh_user=root
+        groupname=SERVERS_GRP
+      with_items: created_servers.servers
+
+    - name: create hosts file with new server ip addresses
+      shell: "echo {{ item.details.ipAddresses[0].internal }} >> {{ working_dir }}/{{ server_group }}-hosts"
+      with_items: created_servers.servers
+   
+      
+
+- name: Install software packages
+  hosts: SERVERS_GRP
+  gather_facts: False
+  remote_user: root
+  tasks:
+    - name: Add Repos
+      apt_repository: repo='ppa:docker-maint/testing'
+
+    - name: Update Cache
+      apt: update_cache=yes
+      
+    - name: install the packages
+      apt: name='{{ item }}'
+      with_items:
+        - software-properties-common
+        - linux-image-generic-lts-trusty
+        - bridge-utils
+        - docker.io
+      
+
+- name: Restart server
+  hosts: SERVERS_GRP
+  gather_facts: False
+  tasks:
+    - name: send the reboot
+      command: "sleep 3; shutdown -r now"
+      async: 40
+      poll: 0
+      ignore_errors: true
+
+
+
+- name: make sure docker is running
+  hosts: SERVERS_GRP
+  gather_facts: False
+  tasks:
+    - name: start docker
+      command: "service docker restart"
+      ignore_errors: true
+
+

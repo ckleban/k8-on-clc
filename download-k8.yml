@@ -16,7 +16,8 @@
           state: directory  
   
       - name: Download k8
-        command: git clone https://github.com/GoogleCloudPlatform/kubernetes.git
+        #command: git clone https://github.com/GoogleCloudPlatform/kubernetes.git
+        command: git clone -b release-1.1 --single-branch https://github.com/GoogleCloudPlatform/kubernetes.git kubernetes
         args:
             chdir: "{{ working_dir }}/{{ server_group }}"
             #creates: /path/to/database
